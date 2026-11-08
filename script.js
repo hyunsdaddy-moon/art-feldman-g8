@@ -52,12 +52,6 @@ if (sw) {
   });
 }
 
-// 첫 화면: 내가 고른 반의 평가 날짜를 강조
-const mine = localStorage.getItem("myClass");
-document.querySelectorAll(".dates tr").forEach((tr) => {
-  if (mine && tr.firstElementChild.textContent === mine) tr.classList.add("mine");
-});
-
 // ── 머리 그림: 자동 넘김(첫 화면) · 누르면 돋보기 ──
 const art = document.querySelector(".hero-art");
 if (art) {

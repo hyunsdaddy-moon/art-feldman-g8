@@ -80,7 +80,6 @@ p { margin: 0; }
 .dates h3 { font-size: 22px; }
 .dates table { margin-top: 12px; border-collapse: collapse; font-weight: 500; }
 .dates td { padding: 3px 18px 3px 0; }
-.dates tr.mine td { color: var(--vermilion); font-weight: 700; }
 .veil { background: var(--ink); color: #fff; text-align: center; padding: 34px 24px; margin-top: 28px; font-weight: 700; }
 .veil .q { font-family: var(--serif); font-size: 88px; color: var(--yellow); line-height: 1; }
 .veil p { font-size: 16px; margin-top: 16px; }
