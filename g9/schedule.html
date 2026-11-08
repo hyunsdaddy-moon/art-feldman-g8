@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>일정과 결석생 · 9학년 4가지 관점으로 감상하기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=20261108k">
+</head>
+<body class="g9" data-grade="9">
+<header class="hero" id="top">
+  <div class="hero-panel">
+    <div class="topbar">
+      <a class="logo" href="../index.html">문종배 선생님의 미술실</a>
+      <nav class="site-nav" aria-label="사이트">
+        <a href="../index.html">8학년 감상수업</a>
+        <a href="index.html" aria-current="true">9학년 감상수업</a>
+        <a class="disabled" href="#">시간표</a>
+      </nav>
+    </div>
+    <div class="hero-title">
+      <div class="kicker">9학년 4가지 관점으로 감상하기</div>
+      <h1>일정과 결석생</h1>
+    </div>
+    <ul class="tabs"><li><a href="index.html">공지사항</a></li><li><a href="learn.html">학습내용</a></li><li><a href="criteria.html">수행평가 기준</a></li><li><a href="schedule.html" aria-current="page">일정·결석생</a></li><li><a href="sheet.html">수행평가지</a></li></ul>
+    <p class="credit">배경: 몬드리안, 「빨강, 파랑, 노랑의 구성 II」, 1930</p>
+  </div>
+  <div class="hero-art" role="img" aria-label="몬드리안, 「빨강, 파랑, 노랑의 구성 II」, 1930"><div class="hero-slide is-active" data-img="../images/mondrian-composition.jpg" data-credit="몬드리안, 「빨강, 파랑, 노랑의 구성 II」, 1930" data-pos="50% 50%" style="background-image:url('../images/mondrian-composition.jpg');background-position:50% 50%"></div><div class="loupe" aria-hidden="true"></div><span class="hero-hint">그림을 누르면 돋보기</span></div>
+</header>
+<main>
+
+<section class="section">
+  <div class="wrap">
+    <div class="class-head">
+      <h2 id="class-title">9-5반</h2>
+      <div class="class-tools">
+      <button type="button" class="btn line small" id="edit-absent">🔒 선생님 입력</button>
+      <div class="class-switch" role="group" aria-label="반 선택">
+        <button type="button" data-class="9-1">9-1</button>
+        <button type="button" data-class="9-2">9-2</button>
+        <button type="button" data-class="9-3">9-3</button>
+        <button type="button" data-class="9-4">9-4</button>
+        <button type="button" data-class="9-5">9-5</button>
+      </div>
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table class="schedule">
+      <thead><tr><th>회차</th><th>날짜</th><th>수업 내용</th><th>결석생</th><th>보충과 추가 응시</th><th>비고</th></tr></thead>
+      <tbody id="schedule-body"></tbody>
+    </table>
+    </div>
+    <div class="save-bar" id="save-bar" hidden>
+      <span>결석생 이름을 쉼표(,)로 구분해 적고 저장하세요. 추가 응시 줄은 수행평가 결석생이 자동으로 들어갑니다. 행 추가로 줄을 더하고, 추가한 줄은 ✕로 지웁니다.</span>
+      <button type="button" class="btn line" id="add-row" hidden>＋ 행 추가</button>
+      <button type="button" class="btn line" id="cancel-absent">취소</button>
+      <button type="button" class="btn" id="save-absent">저장</button>
+    </div>
+    <p class="absent-status" id="absent-status" role="status"></p>
+    <p class="table-note">결석생 기록은 선생님이 적습니다. 결석한 날의 수업은 카카오톡 공유 자료와 「학습내용」으로 스스로 공부합니다. 평가 날 결석하면 추후 점심시간에 자기 분석 메모를 가지고 개별 응시합니다.</p>
+  </div>
+</section>
+
+<dialog id="pw-dialog" class="pw-dialog">
+  <form id="pw-form">
+    <h3>선생님 확인</h3>
+    <p>결석생 기록을 고치려면 비밀번호를 입력하세요.</p>
+    <input id="pw-input" type="password" inputmode="numeric" autocomplete="off" required aria-label="비밀번호">
+    <p class="pw-msg" id="pw-msg" role="alert"></p>
+    <div class="buttons">
+      <button type="button" class="btn line" id="pw-cancel">취소</button>
+      <button type="submit" class="btn">확인</button>
+    </div>
+  </form>
+</dialog>
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <div>
+      <b>문종배 선생님의 미술실 · 호치민시한국국제학교</b>
+      <p>작품 이미지: 위키미디어 공용(퍼블릭 도메인) 등. 론 뮤익·백남준 작품은 저작권이 있어 수업 자료로만 사용합니다.</p>
+    </div>
+    <a href="#top">맨 위로 ↑</a>
+  </div>
+</footer>
+<script src="../script.js?v=20261108k"></script>
+</body>
+</html>

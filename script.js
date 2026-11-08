@@ -1,11 +1,36 @@
-// 반별 일정
-const SCHEDULE = {
-  "8-1": { day: "수", lessons: ["11월 11일", "11월 18일"], exam: "11월 25일" },
-  "8-2": { day: "목", lessons: ["11월 12일", "11월 19일"], exam: "11월 26일" },
-  "8-3": { day: "화", lessons: ["11월 10일", "11월 17일"], off: "11월 24일", exam: "12월 1일" },
-  "8-4": { day: "월", lessons: ["11월 9일", "11월 16일"], exam: "11월 23일" },
-  "8-5": { day: "목", lessons: ["11월 12일", "11월 19일"], exam: "11월 26일" },
+// 학년별 반 일정 — 페이지의 <body data-grade="9">로 학년을 고릅니다(없으면 8학년).
+const GRADES = {
+  8: {
+    first: "8-3",
+    lessons: ["4단계 익히기, 올덴버그로 연습", "백남준으로 연습, 출제 작품 공부"],
+    exam: "감상문 쓰기 (제비뽑기)",
+    makeup: "평가 결석생 개별 제비뽑기로 응시",
+    classes: {
+      "8-1": { lessons: ["11월 11일 수", "11월 18일 수"], exam: "11월 25일 수" },
+      "8-2": { lessons: ["11월 12일 목", "11월 19일 목"], exam: "11월 26일 목" },
+      "8-3": { lessons: ["11월 10일 화", "11월 17일 화"], off: "11월 24일 화", exam: "12월 1일 화" },
+      "8-4": { lessons: ["11월 9일 월", "11월 16일 월"], exam: "11월 23일 월" },
+      "8-5": { lessons: ["11월 12일 목", "11월 19일 목"], exam: "11월 26일 목" },
+    },
+  },
+  9: {
+    first: "9-5",
+    lessons: ["4가지 관점 익히기, 론 뮤익 예제", "모둠 활동 ‘한 작품, 네 개의 안경’", "작품 고르고 분석 메모 쓰기"],
+    exam: "감상문 쓰기 (내 메모만 보고)",
+    makeup: "평가 결석생 개별 응시 (메모 지참)",
+    classes: {
+      "9-1": { lessons: ["11월 9일 월", "11월 11일 수", "11월 16일 월"], exam: "11월 18일 수" },
+      "9-2": { lessons: ["11월 9일 월", "11월 13일 금", "11월 16일 월"], exam: "11월 20일 금" },
+      "9-3": { lessons: ["11월 13일 금", "11월 17일 화", "11월 20일 금"], off: "11월 24일 화", exam: "11월 27일 금" },
+      "9-4": { lessons: ["11월 11일 수", "11월 13일 금", "11월 18일 수"], exam: "11월 20일 금" },
+      "9-5": { lessons: ["11월 9일 월", "11월 11일 수", "11월 16일 월"], exam: "11월 18일 수" },
+    },
+  },
 };
+const GRADE_NO = document.body.dataset.grade || "8";
+const GRADE = GRADES[GRADE_NO];
+const SCHEDULE = GRADE.classes;
+const CLASS_KEY = GRADE_NO === "8" ? "myClass" : `myClass${GRADE_NO}`;
 
 // 결석생 기록 저장소 — Supabase 주소와 공개 키(anon)를 넣으면 Supabase, 비어 있으면 구글 시트를 씁니다. 공개 키라 올려도 됩니다(쓰기는 비밀번호 함수로만).
 const SUPABASE_URL = "https://axbgotxrdkaoavpyeofb.supabase.co";
@@ -17,7 +42,7 @@ let EXTRA = {};     // 반별 { notes: { lesson1: "…" }, rows: [{ id, title, d
 let EXTRA_READY = false; // Supabase 에 schedule_extra 표가 있으면 true
 let editing = false;
 let draft = null;   // 고치는 중인 { notes, rows }
-let currentClass = "8-3";
+let currentClass = GRADE.first;
 const ROW_FIELDS = ["title", "date", "content", "absent", "makeup", "note"];
 const ROW_HINTS = { title: "회차", date: "날짜", content: "수업 내용", absent: "결석생", makeup: "보충", note: "메모" };
 
@@ -46,13 +71,11 @@ function renderSchedule(cls) {
   const notes = ex.notes || {};
   const cell = (slot) => (editing ? field(slot, a[slot]) : names(a[slot]));
   const note = (key) => (editing ? noteField(key, notes[key]) : esc(notes[key] || ""));
-  const rows = [
-    ["", "수업 1", `${s.lessons[0]} ${s.day}`, "4단계 익히기, 올덴버그로 연습", cell("lesson1"), "공유 자료로 자율 학습", note("lesson1")],
-    ["", "수업 2", `${s.lessons[1]} ${s.day}`, "백남준으로 연습, 출제 작품 공부", cell("lesson2"), "공유 자료로 자율 학습", note("lesson2")],
-  ];
-  if (s.off) rows.push(["off", "휴무", `${s.off} ${s.day}`, "학교 휴무일이라 수업이 없습니다", "", "", note("off")]);
-  rows.push(["exam", "수행평가", `${s.exam} ${s.day}`, "감상문 쓰기 (제비뽑기)", cell("exam"), "평가 결석생은 점심시간 응시", note("exam")]);
-  rows.push(["makeup", "추가 응시", "추후 점심시간", "평가 결석생 개별 제비뽑기로 응시", names(a.exam), "선생님이 날짜 안내", note("makeup")]);
+  const rows = s.lessons.map((date, i) =>
+    ["", `수업 ${i + 1}`, date, GRADE.lessons[i], cell(`lesson${i + 1}`), "공유 자료로 자율 학습", note(`lesson${i + 1}`)]);
+  if (s.off) rows.push(["off", "휴무", s.off, "학교 휴무일이라 수업이 없습니다", "", "", note("off")]);
+  rows.push(["exam", "수행평가", s.exam, GRADE.exam, cell("exam"), "평가 결석생은 점심시간 응시", note("exam")]);
+  rows.push(["makeup", "추가 응시", "추후 점심시간", GRADE.makeup, names(a.exam), "선생님이 날짜 안내", note("makeup")]);
   (ex.rows || []).forEach((r) => rows.push(["custom", ...ROW_FIELDS.map((k, i) =>
     editing
       ? (i === 0 ? `<button type="button" class="row-del" data-row="${r.id}" aria-label="이 행 지우기" title="행 지우기">✕</button>` : "") + rowField(r.id, k, r[k])
@@ -126,12 +149,12 @@ const store = {
 
 const sw = document.querySelector(".class-switch");
 if (sw) {
-  const saved = location.hash.slice(1) || localStorage.getItem("myClass");
-  renderSchedule(SCHEDULE[saved] ? saved : "8-3");
+  const saved = location.hash.slice(1) || localStorage.getItem(CLASS_KEY);
+  renderSchedule(SCHEDULE[saved] ? saved : GRADE.first);
   sw.addEventListener("click", (e) => {
     const cls = e.target.dataset && e.target.dataset.class;
     if (!cls || editing) return;
-    localStorage.setItem("myClass", cls);
+    localStorage.setItem(CLASS_KEY, cls);
     history.replaceState(null, "", `#${cls}`);
     renderSchedule(cls);
   });
@@ -228,7 +251,9 @@ if (sw) {
       if (r.ok) { ABSENT = r.data || ABSENT; setEditing(false); say(r.partial ? "결석생만 저장했습니다. 행·비고는 Supabase 설정(03-행추가-비고.sql)을 마친 뒤 저장됩니다." : `${currentClass}반 기록을 저장했습니다.`); }
       else {
         if (r.error === "wrong-password") sessionStorage.removeItem("absentPw");
-        say(r.error === "locked" ? "여러 번 틀려서 10분 동안 잠겼습니다." : "저장하지 못했습니다. 비밀번호를 다시 입력해 주세요.");
+        say(r.error === "locked" ? "여러 번 틀려서 10분 동안 잠겼습니다."
+          : r.error === "bad-class" ? "이 반은 아직 저장할 수 없습니다. Supabase 설정(04-9학년.sql)을 먼저 실행해 주세요."
+          : "저장하지 못했습니다. 비밀번호를 다시 입력해 주세요.");
       }
     } catch { say("저장하지 못했습니다. 인터넷 연결을 확인해 주세요."); }
   });

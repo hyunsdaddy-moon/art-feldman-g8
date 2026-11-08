@@ -1,4 +1,4 @@
-/* 8학년 감상수업 — 교실 속 미술관 */
+/* 8·9학년 감상수업 — 교실 속 미술관 */
 :root {
   --ink: #1c2b4f;
   --ink-deep: #121a30;
@@ -9,6 +9,8 @@
   --text: #333d54;
   --muted: #596173;
   --line-light: #d9deeb;
+  --on-ink: #c7cfe0;   /* 주색 바탕 위 흐린 글씨 */
+  --muted-ink: #737d94;
   --s1: #4a6191; /* 서술 */
   --s2: #5b8a73; /* 분석 */
   --s3: #9a7148; /* 해석 */
@@ -119,13 +121,13 @@ p { margin: 0; }
 
 .gallery { background: var(--ink); color: #e5ebf2; }
 .gallery h2 { color: #fff; margin: 8px 0 32px; }
-.gallery .caption { color: #c7cfe0; }
+.gallery .caption { color: var(--on-ink); }
 .gallery-grid { display: grid; grid-template-columns: 560px 1fr; gap: 60px; }
 details.stage { background: rgba(255,255,255,.07); border-left: 6px solid var(--c, var(--s1)); margin-bottom: 16px; }
 details.stage summary { cursor: pointer; list-style: none; padding: 16px 24px; display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; }
 details.stage summary::-webkit-details-marker { display: none; }
 details.stage summary b { font-size: 17px; color: #fff; }
-details.stage summary small { grid-column: 1; font-size: 14px; color: #c7cfe0; }
+details.stage summary small { grid-column: 1; font-size: 14px; color: var(--on-ink); }
 details.stage summary::after { content: "펼치기 ＋"; grid-row: 1 / span 2; grid-column: 2; align-self: center; color: var(--yellow); font-size: 14px; font-weight: 700; }
 details.stage[open] summary::after { content: "접기 －"; }
 details.stage .body { padding: 0 24px 22px; font-size: 16px; }
@@ -164,16 +166,16 @@ details.answer .body p + p { margin-top: 12px; }
 .scores { background: var(--ink); color: #fff; }
 .scores .wrap { display: grid; grid-template-columns: 1fr 300px; gap: 40px; padding-top: 48px; padding-bottom: 56px; }
 .score-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-.score-row small { display: block; color: #c7cfe0; font-size: 14px; }
+.score-row small { display: block; color: var(--on-ink); font-size: 14px; }
 .score-row b { font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 800; }
 .score-row .top b { color: var(--yellow); }
 .score-row .none b { color: #99a3b8; }
-.score-note { font-size: 15px; color: #d9deeb; }
+.score-note { font-size: 15px; color: var(--line-light); }
 
 /* ── 일정 ── */
 .class-head { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
 .class-switch { display: flex; background: #fff; }
-.class-switch button { font: inherit; font-weight: 700; border: 0; background: none; color: #737d94; padding: 10px 24px; cursor: pointer; }
+.class-switch button { font: inherit; font-weight: 700; border: 0; background: none; color: var(--muted-ink); padding: 10px 24px; cursor: pointer; }
 .class-switch button[aria-pressed="true"] { background: var(--ink); color: var(--yellow); }
 .schedule { width: 100%; border-collapse: collapse; margin-top: 30px; background: var(--card); }
 .schedule th { background: var(--ink); color: #fff; text-align: left; font-size: 14px; padding: 16px 24px; }
@@ -210,7 +212,7 @@ details.answer .body p + p { margin-top: 12px; }
 .footer { background: var(--ink-deep); color: #fff; }
 .footer .wrap { display: flex; justify-content: space-between; gap: 24px; padding-top: 46px; padding-bottom: 46px; }
 .footer b { font-size: 17px; }
-.footer p { font-size: 14px; color: #c7cfe0; margin-top: 6px; }
+.footer p { font-size: 14px; color: var(--on-ink); margin-top: 6px; }
 .footer a { color: var(--yellow); font-weight: 700; text-decoration: none; font-size: 15px; white-space: nowrap; }
 
 /* ── 태블릿·휴대폰 ── */
@@ -285,7 +287,7 @@ details.answer .body p + p { margin-top: 12px; }
 .hero-art.is-loupe .hero-slide { transform: none !important; animation: none !important; }
 .loupe { position: absolute; width: 220px; height: 220px; border-radius: 50%; border: 3px solid var(--yellow); box-shadow: 0 10px 30px rgba(0,0,0,.45); background-repeat: no-repeat; pointer-events: none; display: none; z-index: 3; }
 .hero-art.is-loupe .loupe.on { display: block; }
-.hero-hint { position: absolute; left: 18px; bottom: 18px; z-index: 2; background: rgba(18,26,48,.75); color: #fff; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 999px; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.hero-hint { position: absolute; left: 18px; bottom: 18px; z-index: 2; background: color-mix(in srgb, var(--ink-deep) 75%, transparent); color: #fff; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 999px; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .hero-art:hover .hero-hint, .hero-art.is-loupe .hero-hint { opacity: 1; }
 .hero-dots { position: absolute; right: 20px; bottom: 20px; z-index: 2; display: flex; gap: 8px; }
 .hero-dots button { width: 11px; height: 11px; padding: 0; border-radius: 50%; border: 2px solid #fff; background: transparent; cursor: pointer; }
@@ -314,7 +316,7 @@ details.answer .body p + p { margin-top: 12px; }
 .row-del:hover { opacity: .7; }
 .absent-status { margin-top: 12px; font-weight: 700; color: var(--ink); min-height: 1.2em; }
 .pw-dialog { border: 0; padding: 32px; width: min(360px, 90vw); border-top: 6px solid var(--yellow); }
-.pw-dialog::backdrop { background: rgba(18,26,48,.6); }
+.pw-dialog::backdrop { background: color-mix(in srgb, var(--ink-deep) 60%, transparent); }
 .pw-dialog h3 { font-size: 22px; }
 .pw-dialog p { font-size: 15px; margin-top: 8px; }
 .pw-dialog input { width: 100%; margin-top: 16px; font: inherit; font-size: 22px; letter-spacing: 8px; text-align: center; padding: 10px; border: 1px solid #b9c0cf; }
@@ -323,3 +325,24 @@ details.answer .body p + p { margin-top: 12px; }
 @media (max-width: 760px) { .class-tools { margin-top: 16px; } .class-tools .class-switch { margin-top: 0; width: 100%; } }
 
 [hidden] { display: none !important; }
+
+/* ── 9학년: 주색 빨강 (<body class="g9">) ── */
+.g9 {
+  --ink: #8c1d24;
+  --ink-deep: #4d0e13;
+  --paper: #ebe7e5;
+  --text: #4a3536;
+  --muted: #6f5d5e;
+  --line-light: #f3dcdc;
+  --on-ink: #e9c4c4;
+  --muted-ink: #8f7778;
+}
+.g9 .alert { background: var(--ink-deep); }
+.compare { margin-top: 28px; background: var(--card); padding: 22px 26px; }
+.compare h3 { font-size: 20px; }
+.compare p { font-size: 15px; color: var(--muted); margin-top: 6px; }
+.compare dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; margin: 14px 0 0; font-size: 15px; }
+.compare dt { font-weight: 700; color: var(--ink); }
+.compare dd { margin: 0; }
+.g9 .schedule tr[class=""] td:first-child { border-left-color: var(--ink); }
+@media (max-width: 760px) { .g9 .schedule tr[class=""] { border-left-color: var(--ink); } }
