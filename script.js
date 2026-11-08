@@ -13,7 +13,11 @@ const SUPABASE_KEY = "sb_publishable_m5zIAEEBiT5uYIGaix_LVQ_Voonpw1Y";
 const SHEET_API = "https://script.google.com/macros/s/AKfycbzjCyl99vijnnGBfy2cmDAFUqKzoydR8gvpsoUPN8nxUsoOlhTQuZgNNjdTC0mMd4q4/exec";
 const STORE_READY = Boolean(SUPABASE_URL || SHEET_API);
 let ABSENT = {};
+let COLUMNS = [];   // 선생님이 추가한 열 [{ id, title }] — 모든 반 공통
+let EXTRA = {};     // 반별 칸 내용 { "8-5": { lesson1: { c…: "…", note: "…" } } }
+let EXTRA_READY = false; // Supabase 에 schedule_extra 표가 있으면 true
 let editing = false;
+let draft = null;   // 고치는 중인 { cols, cells }
 let currentClass = "8-3";
 
 const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -24,6 +28,9 @@ function names(list) {
 function field(slot, list) {
   return `<input class="absent-input" data-slot="${slot}" value="${esc((list || []).join(", "))}" placeholder="이름을 쉼표(,)로 구분" aria-label="결석생 이름">`;
 }
+function extraField(row, col, value, label) {
+  return `<input class="absent-input extra-input" data-row="${row}" data-col="${col}" value="${esc(value || "")}" placeholder="${col === "note" ? "메모" : ""}" aria-label="${esc(label)}">`;
+}
 
 function renderSchedule(cls) {
   const body = document.getElementById("schedule-body");
@@ -31,21 +38,35 @@ function renderSchedule(cls) {
   currentClass = cls;
   const s = SCHEDULE[cls];
   const a = ABSENT[cls] || {};
+  const cols = EXTRA_READY ? (editing ? draft.cols : COLUMNS) : [];
+  const cells = editing ? draft.cells : EXTRA[cls] || {};
+  const extraCols = EXTRA_READY ? [...cols, { id: "note", title: "비고" }] : [];
   const cell = (slot) => (editing ? field(slot, a[slot]) : names(a[slot]));
   const rows = [
-    ["", "수업 1", `${s.lessons[0]} ${s.day}`, "4단계 익히기, 올덴버그로 연습", cell("lesson1"), "공유 자료로 자율 학습"],
-    ["", "수업 2", `${s.lessons[1]} ${s.day}`, "백남준으로 연습, 출제 작품 공부", cell("lesson2"), "공유 자료로 자율 학습"],
+    ["lesson1", "", "수업 1", `${s.lessons[0]} ${s.day}`, "4단계 익히기, 올덴버그로 연습", cell("lesson1"), "공유 자료로 자율 학습"],
+    ["lesson2", "", "수업 2", `${s.lessons[1]} ${s.day}`, "백남준으로 연습, 출제 작품 공부", cell("lesson2"), "공유 자료로 자율 학습"],
   ];
-  if (s.off) rows.push(["off", "휴무", `${s.off} ${s.day}`, "학교 휴무일이라 수업이 없습니다", "", ""]);
-  rows.push(["exam", "수행평가", `${s.exam} ${s.day}`, "감상문 쓰기 (제비뽑기)", cell("exam"), "평가 결석생은 점심시간 응시"]);
-  rows.push(["makeup", "추가 응시", "추후 점심시간", "평가 결석생 개별 제비뽑기로 응시", names(a.exam), "선생님이 날짜 안내"]);
+  if (s.off) rows.push(["off", "off", "휴무", `${s.off} ${s.day}`, "학교 휴무일이라 수업이 없습니다", "", ""]);
+  rows.push(["exam", "exam", "수행평가", `${s.exam} ${s.day}`, "감상문 쓰기 (제비뽑기)", cell("exam"), "평가 결석생은 점심시간 응시"]);
+  rows.push(["makeup", "makeup", "추가 응시", "추후 점심시간", "평가 결석생 개별 제비뽑기로 응시", names(a.exam), "선생님이 날짜 안내"]);
 
-  const labels = ["", "날짜", "수업", "결석생", "보충"];
+  const head = ["회차", "날짜", "수업 내용", "결석생", "보충과 추가 응시"].map((t) => `<th>${t}</th>`);
+  extraCols.forEach((c) => head.push(editing && c.id !== "note"
+    ? `<th class="col-edit"><input class="col-title" data-col="${c.id}" value="${esc(c.title)}" maxlength="20" aria-label="열 이름"><button type="button" class="col-del" data-col="${c.id}" aria-label="${esc(c.title)} 열 지우기" title="열 지우기">✕</button></th>`
+    : `<th>${esc(c.title)}</th>`));
+  document.getElementById("schedule-head").innerHTML = `<tr>${head.join("")}</tr>`;
+
+  const labels = ["", "날짜", "수업", "결석생", "보충", ...extraCols.map((c) => c.title)];
   body.innerHTML = rows
-    .map(([rowCls, ...cells]) =>
-      `<tr class="${rowCls}">${cells
-        .map((c, i) => `<td${i && c ? ` data-label="${labels[i]}"` : ""}>${c}</td>`)
-        .join("")}</tr>`)
+    .map(([key, rowCls, ...base]) => {
+      const extra = extraCols.map((c) => {
+        const v = (cells[key] || {})[c.id];
+        return editing ? extraField(key, c.id, v, `${base[0]} ${c.title}`) : v ? esc(v) : "";
+      });
+      return `<tr class="${rowCls}">${[...base, ...extra]
+        .map((c, i) => `<td${i && c ? ` data-label="${esc(labels[i])}"` : ""}>${c}</td>`)
+        .join("")}</tr>`;
+    })
     .join("");
   document.getElementById("class-title").textContent = `${cls}반`;
   document.querySelectorAll(".class-switch button").forEach((b) =>
@@ -63,15 +84,27 @@ async function supa(path, body) {
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(`supabase ${res.status}`);
+  if (!res.ok) throw Object.assign(new Error(`supabase ${res.status}`), { status: res.status });
   return res.json();
+}
+
+// 추가 열·비고 (02-표열-비고.sql 을 실행하기 전이면 조용히 건너뜀)
+async function loadExtra() {
+  try {
+    const rows = await supa("schedule_extra?select=cls,data");
+    EXTRA_READY = true;
+    EXTRA = {};
+    rows.forEach((r) => (r.cls === "_columns" ? (COLUMNS = r.data.columns || []) : (EXTRA[r.cls] = r.data.cells || {})));
+  } catch (e) {
+    if (e.status !== 404) throw e;
+  }
 }
 
 // 저장소 공통 창구: { ok, error, data } 모양으로 돌려줍니다.
 const store = {
   async load() {
     if (!SUPABASE_URL) return (await callSheet()).data || {};
-    const rows = await supa("absences?select=cls,slot,names");
+    const [rows] = await Promise.all([supa("absences?select=cls,slot,names"), loadExtra()]);
     const data = {};
     rows.forEach((r) => ((data[r.cls] = data[r.cls] || {})[r.slot] = r.names || []));
     return data;
@@ -80,9 +113,11 @@ const store = {
     if (!SUPABASE_URL) return callSheet({ action: "check", password });
     return supa("rpc/check_teacher", { pw: password });
   },
-  async save(password, cls, absent) {
+  async save(password, cls, absent, extra) {
     if (!SUPABASE_URL) return callSheet({ action: "save", password, cls, absent });
-    const r = await supa("rpc/save_absences", { pw: password, p_cls: cls, p_absent: absent });
+    const r = EXTRA_READY
+      ? await supa("rpc/save_schedule", { pw: password, p_cls: cls, p_absent: absent, p_columns: extra.cols, p_cells: extra.cells })
+      : await supa("rpc/save_absences", { pw: password, p_cls: cls, p_absent: absent });
     return r.ok ? { ok: true, data: await store.load() } : r;
   },
 };
@@ -113,8 +148,48 @@ if (sw) {
       .catch(() => say("결석생 기록을 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요."));
   }
 
+  const table = document.querySelector(".schedule");
+  const addCol = document.getElementById("add-column");
+
+  // 화면의 입력칸 내용을 draft 에 옮겨 둡니다(열을 넣고 뺄 때 다시 그려도 지워지지 않게).
+  function collect() {
+    if (!draft) return;
+    document.querySelectorAll(".col-title").forEach((i) => {
+      const c = draft.cols.find((c) => c.id === i.dataset.col);
+      if (c) c.title = i.value.trim() || "새 열";
+    });
+    document.querySelectorAll(".extra-input").forEach((i) => {
+      (draft.cells[i.dataset.row] = draft.cells[i.dataset.row] || {})[i.dataset.col] = i.value.trim();
+    });
+    const a = (ABSENT[currentClass] = ABSENT[currentClass] || {});
+    document.querySelectorAll(".absent-input[data-slot]").forEach((i) => {
+      a[i.dataset.slot] = i.value.split(",").map((n) => n.trim()).filter(Boolean);
+    });
+  }
+
+  addCol.addEventListener("click", () => {
+    collect();
+    if (draft.cols.length >= 8) return say("열은 8개까지 추가할 수 있습니다.");
+    const id = `c${Date.now().toString(36)}`;
+    draft.cols.push({ id, title: "새 열" });
+    renderSchedule(currentClass);
+    const input = document.querySelector(`.col-title[data-col="${id}"]`);
+    input?.focus(); input?.select();
+  });
+  table.addEventListener("click", (e) => {
+    const btn = e.target.closest(".col-del");
+    if (!btn) return;
+    collect();
+    const col = draft.cols.find((c) => c.id === btn.dataset.col);
+    if (!col || !confirm(`'${col.title}' 열을 지울까요?\n저장하면 모든 반에서 이 열의 내용이 지워집니다.`)) return;
+    draft.cols = draft.cols.filter((c) => c !== col);
+    renderSchedule(currentClass);
+  });
+
   function setEditing(on) {
     editing = on;
+    draft = on ? { cols: COLUMNS.map((c) => ({ ...c })), cells: JSON.parse(JSON.stringify(EXTRA[currentClass] || {})) } : null;
+    addCol.hidden = !EXTRA_READY;
     saveBar.hidden = !on;
     editBtn.hidden = on;
     sw.classList.toggle("locked", on);
@@ -139,15 +214,17 @@ if (sw) {
     } catch { pwMsg.textContent = "연결에 실패했습니다. 다시 시도해 주세요."; }
   });
 
-  document.getElementById("cancel-absent").addEventListener("click", () => { setEditing(false); say(""); });
+  document.getElementById("cancel-absent").addEventListener("click", async () => {
+    setEditing(false);
+    say("되돌리는 중…");
+    try { ABSENT = await store.load(); renderSchedule(currentClass); say(""); } catch { say(""); }
+  });
   document.getElementById("save-absent").addEventListener("click", async () => {
-    const absent = {};
-    document.querySelectorAll(".absent-input").forEach((i) => {
-      absent[i.dataset.slot] = i.value.split(",").map((n) => n.trim()).filter(Boolean);
-    });
+    collect();
+    const absent = ABSENT[currentClass] || {};
     say("저장하는 중…");
     try {
-      const r = await store.save(sessionStorage.getItem("absentPw"), currentClass, absent);
+      const r = await store.save(sessionStorage.getItem("absentPw"), currentClass, absent, draft);
       if (r.ok) { ABSENT = r.data || ABSENT; setEditing(false); say(`${currentClass}반 결석생 기록을 저장했습니다.`); }
       else {
         if (r.error === "wrong-password") sessionStorage.removeItem("absentPw");
