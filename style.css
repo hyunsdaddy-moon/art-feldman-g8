@@ -273,3 +273,27 @@ details.answer .body p + p { margin-top: 12px; }
 @media print {
   .hero, .footer, .tabs { display: none; }
 }
+
+/* ── 머리 그림: 천천히 확대 · 돋보기 · 자동 넘김 ── */
+.hero-art { position: relative; overflow: hidden; cursor: zoom-in; background: var(--ink-deep); }
+.hero-slide { position: absolute; inset: 0; background-size: cover; opacity: 0; transition: opacity 1.5s ease, transform 1.5s ease; }
+.hero-slide.is-active { opacity: 1; }
+.hero-art:not(.is-slideshow):hover .hero-slide { transform: scale(1.06); }
+.hero-art.is-slideshow .hero-slide.is-active { animation: kenburns 8.5s ease-out forwards; }
+.hero-art.is-slideshow:hover .hero-slide.is-active { animation-play-state: paused; }
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.08); } }
+.hero-art.is-loupe { cursor: none; touch-action: none; }
+.hero-art.is-loupe .hero-slide { transform: none !important; animation: none !important; }
+.loupe { position: absolute; width: 220px; height: 220px; border-radius: 50%; border: 3px solid var(--yellow); box-shadow: 0 10px 30px rgba(0,0,0,.45); background-repeat: no-repeat; pointer-events: none; display: none; z-index: 3; }
+.hero-art.is-loupe .loupe.on { display: block; }
+.hero-hint { position: absolute; left: 18px; bottom: 18px; z-index: 2; background: rgba(18,26,48,.75); color: #fff; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 999px; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.hero-art:hover .hero-hint, .hero-art.is-loupe .hero-hint { opacity: 1; }
+.hero-dots { position: absolute; right: 20px; bottom: 20px; z-index: 2; display: flex; gap: 8px; }
+.hero-dots button { width: 11px; height: 11px; padding: 0; border-radius: 50%; border: 2px solid #fff; background: transparent; cursor: pointer; }
+.hero-dots button[aria-current="true"] { background: var(--yellow); border-color: var(--yellow); }
+.credit { transition: opacity .6s; }
+@media (max-width: 760px) { .loupe { width: 160px; height: 160px; } }
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide { transition: none; }
+  .hero-art .hero-slide, .hero-art:hover .hero-slide { transform: none !important; animation: none !important; }
+}

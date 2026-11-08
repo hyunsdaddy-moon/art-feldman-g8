@@ -57,3 +57,69 @@ const mine = localStorage.getItem("myClass");
 document.querySelectorAll(".dates tr").forEach((tr) => {
   if (mine && tr.firstElementChild.textContent === mine) tr.classList.add("mine");
 });
+
+// ── 머리 그림: 자동 넘김(첫 화면) · 누르면 돋보기 ──
+const art = document.querySelector(".hero-art");
+if (art) {
+  const slides = [...art.querySelectorAll(".hero-slide")];
+  const loupe = art.querySelector(".loupe");
+  const hint = art.querySelector(".hero-hint");
+  const credit = document.querySelector(".credit");
+  const dots = [...art.querySelectorAll(".hero-dots button")];
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ZOOM = 2.5;
+  const natural = new Map();
+  slides.forEach((s) => {
+    const img = new Image();
+    img.onload = () => natural.set(s, [img.naturalWidth, img.naturalHeight]);
+    img.src = s.dataset.img;
+  });
+
+  let current = 0, hovering = false, timer = null;
+  function show(i) {
+    slides[current].classList.remove("is-active");
+    current = (i + slides.length) % slides.length;
+    const s = slides[current];
+    s.classList.remove("is-active"); void s.offsetWidth; // 확대 애니메이션 처음부터
+    s.classList.add("is-active");
+    dots.forEach((d, k) => d.setAttribute("aria-current", String(k === current)));
+    art.setAttribute("aria-label", s.dataset.credit);
+    if (credit) credit.textContent = `배경: ${s.dataset.credit}`;
+  }
+  if (slides.length > 1) {
+    dots.forEach((d, k) => d.addEventListener("click", (e) => { e.stopPropagation(); show(k); }));
+    show(0);
+    if (!calm) timer = setInterval(() => {
+      if (!hovering && !art.classList.contains("is-loupe")) show(current + 1);
+    }, 7000);
+  }
+  art.addEventListener("pointerenter", () => (hovering = true));
+  art.addEventListener("pointerleave", () => { hovering = false; loupe.classList.remove("on"); });
+
+  function moveLoupe(e) {
+    const r = art.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    const s = slides[current], size = natural.get(s);
+    if (!size) return;
+    const [iw, ih] = size;
+    const k = Math.max(r.width / iw, r.height / ih);
+    const dw = iw * k, dh = ih * k;
+    const [px, py] = s.dataset.pos.split(" ").map((v) => parseFloat(v) / 100);
+    const ix = (x - (r.width - dw) * px) / dw, iy = (y - (r.height - dh) * py) / dh;
+    loupe.classList.add("on");
+    const R = loupe.offsetWidth / 2;
+    loupe.style.left = `${x - R}px`;
+    loupe.style.top = `${y - R}px`;
+    loupe.style.backgroundImage = `url('${s.dataset.img}')`;
+    loupe.style.backgroundSize = `${dw * ZOOM}px ${dh * ZOOM}px`;
+    loupe.style.backgroundPosition = `${-(ix * dw * ZOOM - R)}px ${-(iy * dh * ZOOM - R)}px`;
+  }
+  function setLoupe(on, e) {
+    art.classList.toggle("is-loupe", on);
+    hint.textContent = on ? "다시 누르면 돋보기 끄기" : "그림을 누르면 돋보기";
+    if (on && e) moveLoupe(e); else loupe.classList.remove("on");
+  }
+  art.addEventListener("click", (e) => setLoupe(!art.classList.contains("is-loupe"), e));
+  art.addEventListener("pointermove", (e) => { if (art.classList.contains("is-loupe")) moveLoupe(e); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") setLoupe(false); });
+}
