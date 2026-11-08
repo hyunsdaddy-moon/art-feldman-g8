@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261108i">
+<link rel="stylesheet" href="style.css?v=20261108j">
 </head>
 <body>
 <header class="hero" id="top">
@@ -48,13 +48,13 @@
     </div>
     <div class="table-scroll">
     <table class="schedule">
-      <thead id="schedule-head"><tr><th>회차</th><th>날짜</th><th>수업 내용</th><th>결석생</th><th>보충과 추가 응시</th></tr></thead>
+      <thead><tr><th>회차</th><th>날짜</th><th>수업 내용</th><th>결석생</th><th>보충과 추가 응시</th><th>비고</th></tr></thead>
       <tbody id="schedule-body"></tbody>
     </table>
     </div>
     <div class="save-bar" id="save-bar" hidden>
-      <span>결석생 이름을 쉼표(,)로 구분해 적고 저장하세요. 추가 응시 줄은 수행평가 결석생이 자동으로 들어갑니다. 열 이름을 눌러 고치고, ✕로 지웁니다. 비고는 맨 끝에 고정됩니다.</span>
-      <button type="button" class="btn line" id="add-column" hidden>＋ 열 추가</button>
+      <span>결석생 이름을 쉼표(,)로 구분해 적고 저장하세요. 추가 응시 줄은 수행평가 결석생이 자동으로 들어갑니다. 행 추가로 줄을 더하고, 추가한 줄은 ✕로 지웁니다.</span>
+      <button type="button" class="btn line" id="add-row" hidden>＋ 행 추가</button>
       <button type="button" class="btn line" id="cancel-absent">취소</button>
       <button type="button" class="btn" id="save-absent">저장</button>
     </div>
@@ -85,6 +85,6 @@
     <a href="#top">맨 위로 ↑</a>
   </div>
 </footer>
-<script src="script.js?v=20261108i"></script>
+<script src="script.js?v=20261108j"></script>
 </body>
 </html>

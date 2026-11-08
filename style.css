@@ -307,11 +307,11 @@ details.answer .body p + p { margin-top: 12px; }
 .save-bar span { flex: 1; font-size: 14px; color: var(--ink); font-weight: 500; }
 .save-bar[hidden], .save-bar [hidden] { display: none; }
 .table-scroll { overflow-x: auto; }
-.schedule th.col-edit { white-space: nowrap; }
-.col-title { width: 7.5em; font: inherit; font-size: 14px; padding: 4px 6px; border: 1px solid rgba(255,255,255,.5); background: rgba(255,255,255,.12); color: #fff; }
-.col-title:focus { outline: 2px solid var(--yellow); }
-.col-del { margin-left: 6px; border: 0; background: none; color: #fff; font-size: 15px; cursor: pointer; opacity: .75; }
-.col-del:hover { opacity: 1; color: var(--yellow); }
+.schedule tr.custom td:first-child { border-left-color: #9aa3b5; }
+.schedule tr.custom td:first-child:has(.row-del) { white-space: nowrap; }
+.schedule tr.custom td:first-child .absent-input { width: 6em; }
+.row-del { margin-right: 6px; border: 0; background: none; color: var(--vermilion); font-size: 16px; cursor: pointer; }
+.row-del:hover { opacity: .7; }
 .absent-status { margin-top: 12px; font-weight: 700; color: var(--ink); min-height: 1.2em; }
 .pw-dialog { border: 0; padding: 32px; width: min(360px, 90vw); border-top: 6px solid var(--yellow); }
 .pw-dialog::backdrop { background: rgba(18,26,48,.6); }
