@@ -7,8 +7,11 @@ const SCHEDULE = {
   "8-5": { day: "목", lessons: ["11월 12일", "11월 19일"], exam: "11월 26일" },
 };
 
-// 결석생 기록은 구글 시트(Apps Script 웹 앱)에 저장합니다. 배포한 웹 앱 주소를 여기에 넣습니다.
+// 결석생 기록 저장소 — Supabase 주소와 공개 키(anon)를 넣으면 Supabase, 비어 있으면 구글 시트를 씁니다. 공개 키라 올려도 됩니다(쓰기는 비밀번호 함수로만).
+const SUPABASE_URL = "https://axbgotxrdkaoavpyeofb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_m5zIAEEBiT5uYIGaix_LVQ_Voonpw1Y";
 const SHEET_API = "https://script.google.com/macros/s/AKfycbzjCyl99vijnnGBfy2cmDAFUqKzoydR8gvpsoUPN8nxUsoOlhTQuZgNNjdTC0mMd4q4/exec";
+const STORE_READY = Boolean(SUPABASE_URL || SHEET_API);
 let ABSENT = {};
 let editing = false;
 let currentClass = "8-3";
@@ -54,6 +57,36 @@ async function callSheet(payload) {
   return res.json();
 }
 
+async function supa(path, body) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method: body ? "POST" : "GET",
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) throw new Error(`supabase ${res.status}`);
+  return res.json();
+}
+
+// 저장소 공통 창구: { ok, error, data } 모양으로 돌려줍니다.
+const store = {
+  async load() {
+    if (!SUPABASE_URL) return (await callSheet()).data || {};
+    const rows = await supa("absences?select=cls,slot,names");
+    const data = {};
+    rows.forEach((r) => ((data[r.cls] = data[r.cls] || {})[r.slot] = r.names || []));
+    return data;
+  },
+  async check(password) {
+    if (!SUPABASE_URL) return callSheet({ action: "check", password });
+    return supa("rpc/check_teacher", { pw: password });
+  },
+  async save(password, cls, absent) {
+    if (!SUPABASE_URL) return callSheet({ action: "save", password, cls, absent });
+    const r = await supa("rpc/save_absences", { pw: password, p_cls: cls, p_absent: absent });
+    return r.ok ? { ok: true, data: await store.load() } : r;
+  },
+};
+
 const sw = document.querySelector(".class-switch");
 if (sw) {
   const saved = location.hash.slice(1) || localStorage.getItem("myClass");
@@ -74,9 +107,9 @@ if (sw) {
   const pwMsg = document.getElementById("pw-msg");
   const say = (t) => (status.textContent = t);
 
-  if (SHEET_API) {
+  if (STORE_READY) {
     say("결석생 기록을 불러오는 중…");
-    callSheet().then((r) => { ABSENT = r.data || {}; renderSchedule(currentClass); say(""); })
+    store.load().then((data) => { ABSENT = data; renderSchedule(currentClass); say(""); })
       .catch(() => say("결석생 기록을 불러오지 못했습니다. 잠시 뒤 새로고침해 주세요."));
   }
 
@@ -90,7 +123,7 @@ if (sw) {
   }
 
   editBtn.addEventListener("click", () => {
-    if (!SHEET_API) return say("아직 구글 시트가 연결되지 않았습니다. (script.js 의 SHEET_API)");
+    if (!STORE_READY) return say("아직 저장소가 연결되지 않았습니다. (script.js 위쪽 설정)");
     if (sessionStorage.getItem("absentPw")) return setEditing(true);
     pwInput.value = ""; pwMsg.textContent = "";
     dialog.showModal();
@@ -100,7 +133,7 @@ if (sw) {
     e.preventDefault();
     pwMsg.textContent = "확인 중…";
     try {
-      const r = await callSheet({ action: "check", password: pwInput.value });
+      const r = await store.check(pwInput.value);
       if (r.ok) { sessionStorage.setItem("absentPw", pwInput.value); dialog.close(); setEditing(true); }
       else pwMsg.textContent = r.error === "locked" ? "여러 번 틀려서 10분 동안 잠겼습니다." : "비밀번호가 맞지 않습니다.";
     } catch { pwMsg.textContent = "연결에 실패했습니다. 다시 시도해 주세요."; }
@@ -114,7 +147,7 @@ if (sw) {
     });
     say("저장하는 중…");
     try {
-      const r = await callSheet({ action: "save", password: sessionStorage.getItem("absentPw"), cls: currentClass, absent });
+      const r = await store.save(sessionStorage.getItem("absentPw"), currentClass, absent);
       if (r.ok) { ABSENT = r.data || ABSENT; setEditing(false); say(`${currentClass}반 결석생 기록을 저장했습니다.`); }
       else {
         if (r.error === "wrong-password") sessionStorage.removeItem("absentPw");
