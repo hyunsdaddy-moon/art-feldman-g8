@@ -98,7 +98,7 @@ p { margin: 0; }
 .steps span { color: var(--muted); }
 .video { position: relative; aspect-ratio: 16/9; background: var(--ink-deep); }
 .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.stage-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 30px; }
+.stage-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 44px; }
 .stage-card { background: var(--card); border-top: 5px solid var(--c); padding: 18px 20px 16px; }
 .stage-card h3 { font-size: 22px; display: flex; align-items: baseline; gap: 8px; }
 .stage-card h3 em { font-style: normal; color: var(--c); }
@@ -110,8 +110,9 @@ p { margin: 0; }
 .stage-card .tip { font-size: 13px; color: var(--muted); border-top: 1px dashed #d4d8e0; padding-top: 8px; }
 .stage-card .tip::before { content: "주의 · "; font-weight: 700; color: var(--c); }
 .video-note { font-size: 14px; color: var(--muted); margin-top: 10px; }
-.video.short { aspect-ratio: 9/16; width: 100%; max-width: 380px; margin: 0 auto; }
-.short-note { text-align: center; }
+.video-col { position: relative; align-self: stretch; }
+.video.short { position: absolute; top: 0; bottom: 34px; left: 50%; transform: translateX(-50%); height: auto; width: auto; aspect-ratio: 9/16; }
+.short-note { position: absolute; bottom: 0; left: 0; right: 0; margin: 0; text-align: center; }
 .keywords { margin-top: 28px; color: #2f6b4f; font-weight: 500; }
 .keywords dt { font-size: 16px; }
 .keywords dd { margin: 4px 0 18px; font-size: 19px; word-spacing: 10px; }
@@ -252,6 +253,9 @@ details.answer .body p + p { margin-top: 12px; }
   .hero-panel { min-width: 0; }
   .tabs { max-width: 100%; }
   .stage-cards { grid-template-columns: 1fr; }
+  .video-col { position: static; }
+  .video.short { position: relative; top: auto; bottom: auto; left: auto; transform: none; width: 100%; max-width: 340px; margin: 0 auto; }
+  .short-note { position: static; margin-top: 10px; }
   .steps li { display: block; }
   .steps b { display: inline-block; }
   .steps span { display: block; padding-left: 58px; font-size: 15px; }
