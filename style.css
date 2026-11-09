@@ -347,3 +347,17 @@ details.answer .body p + p { margin-top: 12px; }
 .g9 .schedule tr[class=""] td:first-child { border-left-color: var(--ink); }
 @media (max-width: 760px) { .g9 .schedule tr[class=""] { border-left-color: var(--ink); } }
 .footer .visits { margin-top: 10px; color: var(--yellow); font-weight: 700; white-space: pre; }
+
+/* ── 8학년 화론육법: 기준 6가지 ── */
+:root { --s5: #3f6f78; --s6: #7d6a4c; }
+.s5 { --c: var(--s5); } .s6 { --c: var(--s6); }
+.criteria.six { grid-template-columns: repeat(3, 1fr); }
+.exam-works { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+.exam-works figure { margin: 0; }
+.exam-works img { width: 100%; aspect-ratio: 4/5; object-fit: cover; background: var(--ink); }
+.exam-works figcaption { margin-top: 10px; font-size: 14px; font-weight: 500; line-height: 1.55; }
+.exam-works figcaption b { display: block; font-size: 16px; }
+.rule-list { margin: 18px 0 0; padding-left: 20px; font-size: 15px; }
+.rule-list li { margin-bottom: 6px; }
+@media (max-width: 1100px) { .criteria.six { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 760px) { .criteria.six, .exam-works { grid-template-columns: 1fr; } }

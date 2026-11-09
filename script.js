@@ -13,6 +13,14 @@ const GRADES = {
       "8-5": { lessons: ["11월 12일 목", "11월 19일 목"], exam: "11월 26일 목" },
     },
   },
+  // 8학년 화론육법 — 반과 날짜는 8학년(펠드먼)과 같고, 결석생 기록도 함께 씁니다.
+  "8h": {
+    first: "8-3",
+    lessons: ["화론육법 익히기, 윤두서 「자화상」 영상", "김홍도 「씨름」·신윤복 「단오풍정」 써 보기, 출제 작품 공부"],
+    exam: "감상문 쓰기 (제비뽑기)",
+    makeup: "평가 결석생 개별 제비뽑기로 응시",
+    classes: null, // 아래에서 8학년 반 일정을 그대로 씁니다
+  },
   9: {
     first: "9-5",
     lessons: ["4가지 관점 익히기, 론 뮤익 「소년」 써 보기", "고흐 「별이 빛나는 밤」 써 보기", "백남준 「TV 부처」 써 보기"],
@@ -27,10 +35,11 @@ const GRADES = {
     },
   },
 };
+GRADES["8h"].classes = GRADES[8].classes;
 const GRADE_NO = document.body.dataset.grade || "8";
 const GRADE = GRADES[GRADE_NO];
 const SCHEDULE = GRADE.classes;
-const CLASS_KEY = GRADE_NO === "8" ? "myClass" : `myClass${GRADE_NO}`;
+const CLASS_KEY = GRADE_NO.startsWith("8") ? "myClass" : `myClass${GRADE_NO}`;
 
 // 결석생 기록 저장소 — Supabase 주소와 공개 키(anon)를 넣으면 Supabase, 비어 있으면 구글 시트를 씁니다. 공개 키라 올려도 됩니다(쓰기는 비밀번호 함수로만).
 const SUPABASE_URL = "https://axbgotxrdkaoavpyeofb.supabase.co";
