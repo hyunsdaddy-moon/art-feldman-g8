@@ -324,3 +324,14 @@ if (art) {
   art.addEventListener("pointermove", (e) => { if (art.classList.contains("is-loupe")) moveLoupe(e); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") setLoupe(false); });
 }
+
+// ── 꼬리말 조회수 (Supabase 05-조회수.sql 실행 전에는 숨김) ──
+const visits = document.getElementById("visits");
+if (visits && SUPABASE_URL) {
+  supa("rpc/visit", {})
+    .then((r) => {
+      visits.textContent = `조회수  오늘 ${r.today.toLocaleString()} · 전체 ${r.total.toLocaleString()}`;
+      visits.hidden = false;
+    })
+    .catch(() => {});
+}

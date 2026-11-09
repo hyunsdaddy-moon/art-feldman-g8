@@ -346,3 +346,4 @@ details.answer .body p + p { margin-top: 12px; }
 .compare dd { margin: 0; }
 .g9 .schedule tr[class=""] td:first-child { border-left-color: var(--ink); }
 @media (max-width: 760px) { .g9 .schedule tr[class=""] { border-left-color: var(--ink); } }
+.footer .visits { margin-top: 10px; color: var(--yellow); font-weight: 700; white-space: pre; }
