@@ -325,12 +325,15 @@ if (art) {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") setLoupe(false); });
 }
 
-// ── 꼬리말 조회수 (Supabase 05-조회수.sql 실행 전에는 숨김) ──
+// ── 꼬리말 방문 수: 한 브라우저는 하루(호치민 시간)에 한 번만 셉니다 (Supabase 05·06 SQL) ──
 const visits = document.getElementById("visits");
 if (visits && SUPABASE_URL) {
-  supa("rpc/visit", {})
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
+  const counted = localStorage.getItem("visitDay") === today;
+  supa("rpc/visit", { p_add: !counted })
     .then((r) => {
-      visits.textContent = `조회수  오늘 ${r.today.toLocaleString()} · 전체 ${r.total.toLocaleString()}`;
+      localStorage.setItem("visitDay", today);
+      visits.textContent = `방문  오늘 ${r.today.toLocaleString()}명 · 전체 ${r.total.toLocaleString()}명`;
       visits.hidden = false;
     })
     .catch(() => {});
