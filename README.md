@@ -5,7 +5,7 @@
 
 | 쪽 | 파일 |
 |---|---|
-| 공지사항 | `index.html` |
+| 공지사항 | `g8-index.html` (기본 주소 `index.html`은 9학년 공지사항으로 넘어감) |
 | 학습내용 | `learn.html` |
 | 수행평가 기준 | `criteria.html` |
 | 일정·결석생 | `schedule.html` |
