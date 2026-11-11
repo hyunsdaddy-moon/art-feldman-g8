@@ -36,6 +36,11 @@ const GRADES = {
   },
 };
 GRADES["8h"].classes = GRADES[8].classes;
+// 반별 미술부장 — [1학기, 2학기]
+const MONITORS = {
+  "8-1": ["김은채", "정예성"], "8-2": ["유호린", "김지원"], "8-3": ["김예성", "김채이"], "8-4": ["김이룸", "석시우"], "8-5": ["박시현", "김지원"],
+  "9-1": ["임상현", "김민준"], "9-2": ["김민준", "김민희"], "9-3": ["문선우", "차유나"], "9-4": ["박민호", "전익환"], "9-5": ["김지호", "이서우"],
+};
 const GRADE_NO = document.body.dataset.grade || "8";
 const GRADE = GRADES[GRADE_NO];
 const SCHEDULE = GRADE.classes;
@@ -98,6 +103,12 @@ function renderSchedule(cls) {
         .join("")}</tr>`)
     .join("");
   document.getElementById("class-title").textContent = `${cls}반`;
+  const mon = document.getElementById("class-monitors");
+  if (mon) {
+    const m = MONITORS[cls];
+    mon.innerHTML = m ? `<b>미술부장</b><span><em>1학기</em> ${esc(m[0])}</span><span><em>2학기</em> ${esc(m[1])}</span>` : "";
+    mon.hidden = !m;
+  }
   document.querySelectorAll(".class-switch button").forEach((b) =>
     b.setAttribute("aria-pressed", String(b.dataset.class === cls)));
 }
